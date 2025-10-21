@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <OutputPath>$(SolutionDir)\..\..\Build\$(Configuration)\</OutputPath>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="runtime\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="RemoveManagedArtifacts" AfterTargets="Build">
+        <PropertyGroup>
+            <_asm>$(AssemblyName).dll</_asm>
+            <_pdb>$(AssemblyName).pdb</_pdb>
+            <_runtimeconfig>$(AssemblyName).runtimeconfig.json</_runtimeconfig>
+        </PropertyGroup>
+        
+        <ItemGroup>
+            <_FilesToDelete Include="$(TargetDir)$(_asm)" />
+            <_FilesToDelete Include="$(TargetDir)$(_pdb)" />
+            <_FilesToDelete Include="$(TargetDir)$(_runtimeconfig)" />
+        </ItemGroup>
+        
+        <Message Importance="High" Text="MusgoEngine.Native: Removing managed artifacts from $(TargetDir)" />
+        <Delete Files="@(_FilesToDelete)" ContinueOnError="true" />
+        <Delete Files="$(OutputPath)MusgoEngine.Native.deps.json" ContinueOnError="true"/>
+    </Target>
+    
+</Project>
