@@ -6,10 +6,12 @@
         <Nullable>enable</Nullable>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <OutputPath>$(SolutionDir)\..\..\Build\$(Configuration)\</OutputPath>
+        <PlatformTarget>x64</PlatformTarget>
+        <Platforms>x64</Platforms>
     </PropertyGroup>
-    
+
     <ItemGroup>
-        <None Include="runtime\**\*.*">
+        <None Include="runtimes\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
@@ -20,16 +22,16 @@
             <_pdb>$(AssemblyName).pdb</_pdb>
             <_runtimeconfig>$(AssemblyName).runtimeconfig.json</_runtimeconfig>
         </PropertyGroup>
-        
+
         <ItemGroup>
             <_FilesToDelete Include="$(TargetDir)$(_asm)" />
             <_FilesToDelete Include="$(TargetDir)$(_pdb)" />
             <_FilesToDelete Include="$(TargetDir)$(_runtimeconfig)" />
         </ItemGroup>
-        
+
         <Message Importance="High" Text="MusgoEngine.Native: Removing managed artifacts from $(TargetDir)" />
         <Delete Files="@(_FilesToDelete)" ContinueOnError="true" />
         <Delete Files="$(OutputPath)MusgoEngine.Native.deps.json" ContinueOnError="true"/>
     </Target>
-    
+
 </Project>
