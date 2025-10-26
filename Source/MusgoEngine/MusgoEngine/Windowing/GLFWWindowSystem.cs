@@ -1,54 +1,80 @@
-using MusgoEngine.Bindings.Glfw3;
-using MusgoEngine.Core;
+using MusgoEngine.Bindings.GLFW;
 
 namespace MusgoEngine.Windowing;
 
 public class GlfwWindowSystem : IWindowSystem
 {
-    private GlfwWindow _window;
+    private GLFWWindow _window;
 
     public GlfwWindowSystem()
     {
-        GlfwLoader.Load();
+        GLFWLoader.Load();
 
-        if (Glfw.Init())
+        if (GLFW.Init())
         {
-            Console.WriteLine("GLFW INIT");
         }
     }
 
     public void CreateWindow(WindowSettings windowSettings)
     {
-        _window = Glfw.CreateWindow(windowSettings.Width, windowSettings.Height, windowSettings.Title);
+        GLFW.WindowHint(WindowHint.Visible, GLFWBool.False);
+        GLFW.WindowHint(WindowHint.Decorated, GLFWBool.True);
+        GLFW.WindowHint(WindowHint.ClientApi, ClientApi.NoApi);
+        _window = GLFW.CreateWindow(windowSettings.Width, windowSettings.Height, windowSettings.Title);
+
+        CenterWindow();
+    }
+
+    public IntPtr GetNativeHandle()
+    {
+        return GLFW.GetWin32Window(_window.Handle);
     }
 
     public void ShowWindow()
     {
-        throw new NotImplementedException();
+        GLFW.ShowWindow(_window);
     }
 
     public void HideWindow()
     {
-        throw new NotImplementedException();
+        GLFW.HideWindow(_window);
+    }
+
+    public void CenterWindow()
+    {
+        GLFW.HideWindow(_window);
+
+        var monitor = GLFW.GetPrimaryMonitor();
+        if (monitor == IntPtr.Zero) return;
+
+        var videoMode = GLFW.GetVideoMode(monitor);
+        var (windowWidth, windowHeight) = GLFW.GetWindowSize(_window);
+
+        GLFW.SetWindowPos(_window,
+            (videoMode.Width - windowWidth) / 2,
+            (videoMode.Height - windowHeight) / 2
+        );
+
+        GLFW.ShowWindow(_window);
     }
 
     public bool IsWindowOpen()
     {
-        return !Glfw.WindowShouldClose(_window);
+        return !GLFW.WindowShouldClose(_window);
     }
 
     public void PollEvents()
     {
-        Glfw.PollEvents();
+        GLFW.PollEvents();
     }
 
     public void DestroyWindow()
     {
-        Glfw.DestroyWindow(_window);
+        GLFW.DestroyWindow(_window);
     }
 
     public void Dispose()
     {
-        GlfwLoader.Unload();
+        GLFWLoader.Unload();
     }
 }

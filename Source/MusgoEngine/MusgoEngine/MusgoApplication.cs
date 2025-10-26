@@ -1,33 +1,47 @@
-using MusgoEngine.Core;
+using MusgoEngine.Graphics;
 using MusgoEngine.Windowing;
 
 namespace MusgoEngine;
 
 public class MusgoApplication
 {
-    private IWindowSystem _windowSystem;
+    private readonly IWindowSystem _windowSystem;
+    private readonly IGraphicApi _graphicApi;
+    private readonly WindowSettings _settings;
+    private volatile bool _running;
 
-    public MusgoApplication()
+    public MusgoApplication(WindowSettings settings)
     {
-        _windowSystem = new GlfwWindowSystem();
+        _running = true;
+
+        _settings = settings;
+
+        _windowSystem = WindowSystemFactory.Create(settings.ApiType);
+        _graphicApi = GraphicsApiFactory.Create(settings.ApiType);
+
+        GraphicsDevice.Instance.Initialize(settings.ApiType, settings.Platform, _graphicApi, _windowSystem);
     }
 
     public void Start()
     {
-        var settings = new WindowSettings();
-        _windowSystem.CreateWindow(settings);
+        _windowSystem.CreateWindow(_settings);
+        _graphicApi.CreateApi(_windowSystem.GetNativeHandle());
     }
 
     public void Run()
     {
-        while (_windowSystem.IsWindowOpen())
+        while (_running && _windowSystem.IsWindowOpen())
         {
             _windowSystem.PollEvents();
+            _graphicApi.BeginDraw();
+            _graphicApi.Draw();
+            _graphicApi.EndDraw();
         }
     }
 
     public void Stop()
     {
+        _graphicApi.DestroyApi();
         _windowSystem.DestroyWindow();
     }
 }

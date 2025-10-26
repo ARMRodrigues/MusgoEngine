@@ -12,4 +12,20 @@
       <ProjectReference Include="..\MusgoEngine.Bindings\MusgoEngine.Bindings.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Core\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Binder\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Binder\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Binder\**" />
+    </ItemGroup>
+
 </Project>
