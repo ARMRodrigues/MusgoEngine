@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Core\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="Binder\**" />
     </ItemGroup>
 

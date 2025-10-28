@@ -1,11 +1,15 @@
 ﻿using MusgoEngine;
+using MusgoEngine.Game;
+
+var game = new Game();
 
 var myWindowSettings = new WindowSettings()
 {
-    ApiType = GraphicApiType.EGL
+    Title = game.WindowTitle,
+    ApiType = GraphicApiType.EGL,
 };
 
-var musgo = new MusgoApplication(myWindowSettings);
+var musgo = new MusgoApplication(myWindowSettings, game);
 
 musgo.Start();
 musgo.Run();
