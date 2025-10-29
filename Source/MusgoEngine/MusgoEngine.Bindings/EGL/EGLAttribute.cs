@@ -10,6 +10,7 @@ public enum EGLAttribute : int
     DepthSize = 0x3025,
     StencilSize = 0x3026,
     RenderableType = 0x3040,
+    SurfaceType = 0x3033,
     ContextClientVersion = 0x3098,
     OpenGLES3 = 0x00000040
 }

@@ -19,5 +19,5 @@ public static unsafe partial class GL
     /// Clear buffers to preset values
     /// </summary>
     /// <param name="mask">Bitwise OR of masks that indicate the buffers to be cleared. The three masks are ColorBufferBit, DepthBufferBit, and StencilBufferBit.</param>
-    public static void Clear(ClearBufferMask mask) => _glClear((uint)mask);
+    public static void Clear(GLClearBufferMask mask) => _glClear((uint)mask);
 }

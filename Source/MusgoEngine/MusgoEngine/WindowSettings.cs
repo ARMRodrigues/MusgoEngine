@@ -9,6 +9,6 @@ public struct WindowSettings()
     public bool Minimized { get; private set; } = false;
     public bool Maximized { get; private set; } = false;
     public bool Vsync { get; private set; } = false;
-    public GraphicApiType ApiType { get; set; } = GraphicApiType.EGL;
+    public GraphicApiType ApiType { get; set; } = GraphicApiType.GLES;
     public Platform Platform { get; set; } = Platform.Desktop;
 }

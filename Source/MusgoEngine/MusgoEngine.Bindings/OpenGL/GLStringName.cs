@@ -1,6 +1,6 @@
 namespace MusgoEngine.Bindings.OpenGL;
 
-public enum StringName : uint
+public enum GLStringName : uint
 {
     Vendor = 0x1F00,
     Renderer = 0x1F01,

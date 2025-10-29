@@ -6,7 +6,7 @@ var game = new Game();
 var myWindowSettings = new WindowSettings()
 {
     Title = game.WindowTitle,
-    ApiType = GraphicApiType.EGL,
+    ApiType = GraphicApiType.GLES,
 };
 
 var musgo = new MusgoApplication(myWindowSettings, game);

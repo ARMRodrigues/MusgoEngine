@@ -1,7 +1,7 @@
 namespace MusgoEngine.Bindings.OpenGL;
 
 [Flags]
-public enum ClearBufferMask
+public enum GLClearBufferMask
 {
     None = 0,
     DepthBufferBit = 256,

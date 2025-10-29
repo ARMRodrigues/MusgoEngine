@@ -11,7 +11,7 @@ public static unsafe partial class GL
     /// </summary>
     /// <param name="name">Specifies a symbolic constant, one of Vendor, Renderer, Version, or ShadingLanguageVersion.</param>
     /// <returns></returns>
-    public static string GetString(StringName name)
+    public static string GetString(GLStringName name)
     {
         var ptr = _glGetString((uint)name);
         return Marshal.PtrToStringAnsi(ptr) ?? string.Empty;

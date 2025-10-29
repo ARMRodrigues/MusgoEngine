@@ -7,7 +7,7 @@ public static class WindowSystemFactory
         return apiType switch
         {
             GraphicApiType.HeadlessApi => new HeadlessWindowSystem(),
-            GraphicApiType.EGL => new GlfwWindowSystem(),
+            GraphicApiType.GLES => new GlfwWindowSystem(),
             _ => throw new NotSupportedException($"Unsupported API: {apiType}")
         };
     }

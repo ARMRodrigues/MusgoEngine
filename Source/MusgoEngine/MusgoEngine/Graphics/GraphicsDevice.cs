@@ -23,7 +23,7 @@ public class GraphicsDevice
 
         ProcAddressProvider = (apiType, platform) switch
         {
-            (GraphicApiType.EGL, Platform.Desktop) => new EGLProcAddressProvider(),
+            (GraphicApiType.GLES, Platform.Desktop) => new EGLProcAddressProvider(),
             //(GraphicApiType.EGL, Platform.Android) => new SdlEglProcAddressProvider(),
             _ => null
         };

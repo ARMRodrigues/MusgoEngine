@@ -1,15 +1,15 @@
 using MusgoEngine.Bindings.EGL;
 using MusgoEngine.Bindings.OpenGL;
 
-namespace MusgoEngine.Graphics;
+namespace MusgoEngine.Graphics.Backends.GLES;
 
-public class EGLGraphicApi : IGraphicApi
+public class GLESGraphicApi : IGraphicApi
 {
     private EGLDisplay _eglDisplay;
     private EGLContext _eglContext;
     private EGLSurface _eglSurface;
 
-    public EGLGraphicApi()
+    public GLESGraphicApi()
     {
         EGLLoader.Load();
     }
@@ -37,7 +37,8 @@ public class EGLGraphicApi : IGraphicApi
             (int)EGLAttribute.AlphaSize, 8,
             (int)EGLAttribute.DepthSize, 24,
             (int)EGLAttribute.StencilSize, 8,
-            (int)EGLAttribute.RenderableType, (int)EGLRenderableType.OpenGLES3,
+            (int)EGLAttribute.SurfaceType, (int)EGLSurfaceType.WindowBit,
+            (int)EGLAttribute.RenderableType, (int)EGLAttribute.OpenGLES3,
             (int)EGLAttribute.None
         ];
 
@@ -69,21 +70,26 @@ public class EGLGraphicApi : IGraphicApi
             Console.WriteLine($"Error creating surface: {ex.Message}");
             throw;
         }
+
         if (!EGL.MakeCurrent(_eglDisplay, _eglSurface, _eglSurface, _eglContext))
             throw new Exception($"eglMakeCurrent failed: 0x{EGL.GetError():X}");
 
         if (GraphicsDevice.Instance.ProcAddressProvider != null)
             GL.Initialize(GraphicsDevice.Instance.ProcAddressProvider);
 
-        Console.WriteLine("Vendor:   " + GL.GetString(StringName.Vendor));
-        Console.WriteLine("Renderer: " + GL.GetString(StringName.Renderer));
-        Console.WriteLine("Version:  " + GL.GetString(StringName.Version));
+        GL.Viewport(0, 0, 1280, 720);
+        GL.Disable(0x0B71);
+        GL.Disable(0x0B44);
+
+        Console.WriteLine("Vendor:   " + GL.GetString(GLStringName.Vendor));
+        Console.WriteLine("Renderer: " + GL.GetString(GLStringName.Renderer));
+        Console.WriteLine("Version:  " + GL.GetString(GLStringName.Version));
     }
 
     public void BeginDraw()
     {
         GL.ClearColor(27/255f, 42/255f, 33/255f, 1.0f);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        GL.Clear(GLClearBufferMask.ColorBufferBit | GLClearBufferMask.DepthBufferBit);
     }
 
     public void Draw()
@@ -93,6 +99,7 @@ public class EGLGraphicApi : IGraphicApi
 
     public void EndDraw()
     {
+        GL.Finish();
         EGL.SwapBuffers(_eglDisplay, _eglSurface);
     }
 
