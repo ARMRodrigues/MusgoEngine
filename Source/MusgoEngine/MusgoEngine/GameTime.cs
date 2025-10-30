@@ -9,7 +9,8 @@ public class GameTime(float fixedDeltaTime = 1f / 60f)
     private float _previousTime;
     private float _accumulator;
 
-    public float DeltaTime { get; private set; }
+    public static float DeltaTime { get; private set; }
+
     public float FixedDeltaTime { get; } = fixedDeltaTime;
     public float TotalTime { get; private set; }
     public int FrameCount { get; private set; }

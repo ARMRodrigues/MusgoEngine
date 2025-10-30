@@ -58,11 +58,13 @@ public static unsafe partial class GL
 
         // DrawingCommands
         _glDrawElements = (delegate* unmanaged[Cdecl]<uint, int, uint, IntPtr, void>)GetProcAddressPointer("glDrawElements");
+        _glDrawElementsBaseVertex = (delegate* unmanaged[Cdecl]<uint, int, uint, IntPtr, int, void>)GetProcAddressPointer("glDrawElementsBaseVertex");
 
         // ControllingViewport
         _glViewport = (delegate* unmanaged[Cdecl]<int, int, int, int, void>)GetProcAddressPointer("glViewport");
 
         // Misc
+        _glGetError = (delegate* unmanaged[Cdecl]<uint>)GetProcAddressPointer("glGetError");
         _glEnable = (delegate* unmanaged[Cdecl]<uint, void>)GetProcAddressPointer("glEnable");
         _glDisable = (delegate* unmanaged[Cdecl]<uint, void>)GetProcAddressPointer("glDisable");
 

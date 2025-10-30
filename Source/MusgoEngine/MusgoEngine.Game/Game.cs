@@ -26,32 +26,25 @@ public class Game : IGame
         scene.EntityManager.AddComponent(cameraEntity, cameraTransform);
         scene.EntityManager.AddComponent(cameraEntity, camera);
 
-        var triangle = scene.EntityManager.CreateEntity();
+        var cubeEntity = scene.EntityManager.CreateEntity();
 
-        float[] vertices =
-        [
-            // posição x,y,z    // cor
-            0.0f, 0.5f, -1f,   1f,0f,0f,
-           -0.5f,-0.5f, -1f,   0f,1f,0f,
-            0.5f,-0.5f, -1f,   0f,0f,1f
-        ];
-
-        uint[] indices = [0, 1, 2];
-
-        var mesh = MeshFactory.Create("Triangle", vertices, indices);
+        var mesh = MeshFactory.Create("Triangle", MeshPrimitives.CreateCube());
         var material = MaterialFactory.Create(new SimpleGLESShader());
         var meshRenderer = new MeshRenderer(mesh, material);
 
-        scene.EntityManager.AddComponent(triangle, new Transform()
+        scene.EntityManager.AddComponent(cubeEntity, new Transform()
         {
             LocalPosition = new Vector3(1f, 1f, 0f),
             LocalScale = Vector3.One * 0.25f
         });
-        scene.EntityManager.AddComponent(triangle, meshRenderer);
+        scene.EntityManager.AddComponent(cubeEntity, meshRenderer);
+
+        scene.EntityManager.AddComponent(cubeEntity, new Rotate(2));
 
         scene.AddGameSystem(new TransformSystem(scene.EntityManager));
         scene.AddGameSystem(new CameraSystem(scene.EntityManager));
         scene.AddGameSystem(new MeshRendererSystem(scene.EntityManager));
+        scene.AddGameSystem(new RotateMeshSystem(scene.EntityManager));
 
         sceneManager.SetActiveScene(scene);
     }
