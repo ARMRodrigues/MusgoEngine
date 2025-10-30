@@ -78,8 +78,10 @@ public class GLESGraphicApi : IGraphicApi
             GL.Initialize(GraphicsDevice.Instance.ProcAddressProvider);
 
         GL.Viewport(0, 0, 1280, 720);
-        GL.Disable(0x0B71);
+        GL.Enable(0x0B71);
         GL.Disable(0x0B44);
+        //GL.Disable(0x0B71);
+        //GL.Disable(0x0B44);
 
         Console.WriteLine("Vendor:   " + GL.GetString(GLStringName.Vendor));
         Console.WriteLine("Renderer: " + GL.GetString(GLStringName.Renderer));

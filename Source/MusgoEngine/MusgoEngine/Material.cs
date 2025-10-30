@@ -1,4 +1,6 @@
-namespace MusgoEngine.Graphics;
+using MusgoEngine.Graphics;
+
+namespace MusgoEngine;
 
 public abstract class Material(Shader shader)
 {

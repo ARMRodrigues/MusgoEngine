@@ -5,8 +5,11 @@ namespace MusgoEngine.Core
     public class EntityManager
     {
         private readonly HashSet<Entity> _entities = [];
+        private readonly HashSet<Guid> _entityIds = [];
         private readonly ConcurrentDictionary<Entity, ConcurrentDictionary<Type, GameComponent>> _components = new();
         private readonly ConcurrentQueue<Entity> _toRemove = new();
+
+        public bool IsHierarchyChanged { get; internal set; }
 
         public IReadOnlyCollection<Entity> Entities
         {
@@ -26,6 +29,7 @@ namespace MusgoEngine.Core
             lock (_entities)
             {
                 _entities.Add(entity);
+                _entityIds.Add(entity.Id);
             }
 
             _components[entity] = new ConcurrentDictionary<Type, GameComponent>();
@@ -35,7 +39,10 @@ namespace MusgoEngine.Core
         public void RemoveEntity(Entity entity)
         {
             _toRemove.Enqueue(entity);
+            IsHierarchyChanged = true;
         }
+
+        public bool HasEntity(Guid id) => _entityIds.Contains(id);
 
         public void ProcessRemovals()
         {
@@ -53,6 +60,7 @@ namespace MusgoEngine.Core
                 lock (_entities)
                 {
                     _entities.Remove(entity);
+                    _entityIds.Remove(entity.Id);
                 }
             }
         }
@@ -70,13 +78,13 @@ namespace MusgoEngine.Core
             }
             else
             {
-                if (existingHierarchy == null) return;
-
                 lock (existingHierarchy)
                 {
                     existingHierarchy.ChildrenId.Add(child.Id);
                 }
             }
+
+            IsHierarchyChanged = true;
         }
 
         public void AddComponent<T>(Entity entity, T component) where T : GameComponent
@@ -108,7 +116,7 @@ namespace MusgoEngine.Core
             }
         }
 
-        public bool TryGetComponent<T>(Entity entity, out T component) where T : GameComponent?
+        public bool TryGetComponent<T>(Entity entity, out T component) where T : GameComponent
         {
             if (_components.TryGetValue(entity, out var comps) &&
                 comps.TryGetValue(typeof(T), out var baseComp) &&
@@ -121,5 +129,18 @@ namespace MusgoEngine.Core
             component = null!;
             return false;
         }
+
+        public IEnumerable<(Entity, T)> GetEntitiesWith<T>() where T : GameComponent
+        {
+            lock (_entities)
+            {
+                foreach (var entity in _entities)
+                {
+                    if (TryGetComponent(entity, out T component))
+                        yield return (entity, component)!;
+                }
+            }
+        }
+
     }
 }

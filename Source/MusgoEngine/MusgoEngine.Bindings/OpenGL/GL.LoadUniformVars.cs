@@ -19,4 +19,12 @@ public static unsafe partial class GL
             _glUniformMatrix4fv(location, 1, transpose, ptr);
         }
     }
+
+    public static void UniformMatrix4fv(int location, bool transpose, float[] values)
+    {
+        fixed (float* ptr = values)
+        {
+            _glUniformMatrix4fv(location, 1, transpose, ptr);
+        }
+    }
 }

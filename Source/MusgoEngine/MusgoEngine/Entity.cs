@@ -1,6 +1,6 @@
 namespace MusgoEngine;
 
-public record struct Entity(Guid id)
+public record struct Entity(Guid Id)
 {
-    public Guid Id = id;
+    public Guid Id = Id;
 }

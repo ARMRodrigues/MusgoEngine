@@ -31,6 +31,7 @@ public static unsafe partial class GL
 
         // UniformVariables
         _glGetUniformLocation = (delegate* unmanaged[Cdecl]<uint, byte*, int>)GetProcAddressPointer("glGetUniformLocation");
+        _glGetActiveUniform = (delegate* unmanaged[Cdecl]<uint, uint, int, int*, int*, uint*, byte*, void>)GetProcAddressPointer("glGetActiveUniform");
 
         // LoadUniformVars
         _glUniform1f = (delegate* unmanaged[Cdecl]<int, float, void>)GetProcAddressPointer("glUniform1f");
@@ -62,6 +63,7 @@ public static unsafe partial class GL
         _glViewport = (delegate* unmanaged[Cdecl]<int, int, int, int, void>)GetProcAddressPointer("glViewport");
 
         // Misc
+        _glEnable = (delegate* unmanaged[Cdecl]<uint, void>)GetProcAddressPointer("glEnable");
         _glDisable = (delegate* unmanaged[Cdecl]<uint, void>)GetProcAddressPointer("glDisable");
 
         // ShaderProgramQueries

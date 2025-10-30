@@ -62,6 +62,8 @@ public class Scene(string name)
         {
             gameSystem.EndFrame();
         }
+
+        EntityManager.ProcessRemovals();
     }
 
     public void Shutdown()
