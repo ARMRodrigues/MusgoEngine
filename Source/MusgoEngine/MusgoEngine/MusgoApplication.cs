@@ -16,8 +16,10 @@ public class MusgoApplication
     private readonly bool _headless = false;
     private readonly bool _vsyncEnabled = false;
     private volatile bool _running;
+    private double _nextFrameTime = 0;
 
-    private readonly uint _targetFps = 75;
+    // TODO : Remove and read from the game config files
+    private readonly uint _targetFps = 0;
 
     public MusgoApplication(WindowSettings settings, IGame game)
     {
@@ -71,17 +73,31 @@ public class MusgoApplication
 
         _sceneManager.EndFrameActiveScene();
 
-        var frameTimeMs = (Stopwatch.GetTimestamp() - frameStart) * 1000.0 / Stopwatch.Frequency;
+        if (!_vsyncEnabled && _targetFps > 0)
+            LimitFramerate(frameStart);
+    }
 
-        // Limita FPS se necessário
-        var effectiveFrameTime = _targetFps > 0 ? Math.Max(frameTimeMs, 1000.0 / _targetFps) : frameTimeMs;
+    private void LimitFramerate(long frameStart)
+    {
+        const double msPerSecond = 1000.0;
+        var frameDuration = msPerSecond / _targetFps;
+        var now = (Stopwatch.GetTimestamp() * msPerSecond) / Stopwatch.Frequency;
 
-        // Se VSync desligado ou TargetFPS < monitor, aplica sleep
-        if (_vsyncEnabled && (_targetFps <= 0 || !(effectiveFrameTime > frameTimeMs))) return;
+        if (_nextFrameTime == 0)
+            _nextFrameTime = now + frameDuration;
+        else
+            _nextFrameTime += frameDuration;
 
-        var sleepMs = (int)(effectiveFrameTime - frameTimeMs);
-        if (sleepMs > 0)
-            Thread.Sleep(sleepMs);
+        double remaining;
+        while ((remaining = _nextFrameTime - now) > 0)
+        {
+            if (remaining > 2.0)
+                Thread.Sleep(1);
+            else
+                Thread.SpinWait(100);
+
+            now = (Stopwatch.GetTimestamp() * msPerSecond) / Stopwatch.Frequency;
+        }
     }
 
     public void Stop()

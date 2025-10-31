@@ -21,15 +21,15 @@ public class RotateMeshSystem : GameSystem
             if (!_entityManager.TryGetComponent(entity, out Transform transform)) continue;
             if (!_entityManager.TryGetComponent(entity, out Rotate rotate)) continue;
             {
-                Vector3 eulerDelta = new Vector3(rotate.Speed * dt);
+                var eulerDelta = new Vector3(rotate.Speed * dt);
 
                 // Cria um quaternion incremental a partir do Euler delta
-                Quaternion incremental = Quaternion.CreateFromYawPitchRoll(
+                var incremental = Quaternion.CreateFromYawPitchRoll(
                     eulerDelta.Y, eulerDelta.X, eulerDelta.Z
                 );
 
                 // Aplica a rotação incremental
-                Quaternion newRotation = incremental * transform.LocalRotation;
+                var newRotation = transform.LocalRotation * incremental;
                 transform.SetLocalRotationQuat(newRotation);
             }
         }
