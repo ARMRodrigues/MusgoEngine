@@ -4,6 +4,8 @@ public static unsafe partial class GL
 {
     private static delegate* unmanaged[Cdecl]<uint, byte*, int> _glGetUniformLocation;
     private static delegate* unmanaged[Cdecl]<uint, uint, int, int*, int*, uint*, byte*, void> _glGetActiveUniform;
+    private static delegate* unmanaged[Cdecl]<uint, byte*, uint> _glGetUniformBlockIndex;
+
 
     public static int GetUniformLocation(uint program, string name)
     {
@@ -29,4 +31,14 @@ public static unsafe partial class GL
 
         return System.Text.Encoding.UTF8.GetString(nameBuffer, length);
     }
+
+    public static uint GetUniformBlockIndex(uint program, string uniformBlockName)
+    {
+        var nameBytes = System.Text.Encoding.ASCII.GetBytes(uniformBlockName + '\0');
+        fixed (byte* ptr = nameBytes)
+        {
+            return _glGetUniformBlockIndex(program, ptr);
+        }
+    }
+
 }

@@ -6,8 +6,9 @@ public class Scene(string name)
 {
     private readonly List<GameSystem> _gameSystems = [];
 
-    public readonly EntityManager EntityManager = new();
     public string Name { get; private set; } = name;
+    public SceneEnvironment SceneEnvironment { get; set; } = new();
+    public readonly EntityManager EntityManager = new();
 
     public void AddGameSystem(GameSystem gameSystem)
     {

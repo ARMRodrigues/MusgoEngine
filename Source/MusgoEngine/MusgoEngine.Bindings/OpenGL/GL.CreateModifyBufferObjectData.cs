@@ -3,6 +3,7 @@ namespace MusgoEngine.Bindings.OpenGL;
 public static unsafe partial class GL
 {
     private static delegate* unmanaged[Cdecl]<uint, nuint, void*, uint, void> _glBufferData;
+    private static delegate* unmanaged[Cdecl]<uint, int, int, void*, void> _glBufferSubData;
 
     public static void BufferData(uint target, float[] data, uint usage)
     {
@@ -28,5 +29,26 @@ public static unsafe partial class GL
     public static void BufferData(GLBufferTarget target, uint[] data, GLBufferUsageHint usage)
     {
         BufferData((uint)target, data, (uint)usage);
+    }
+
+    public static unsafe void BufferData<T>(GLBufferTarget target, ref T data, GLBufferUsageHint usage) where T : unmanaged
+    {
+        fixed (T* ptr = &data)
+        {
+            _glBufferData((uint)target, (nuint)sizeof(T), ptr, (uint)usage);
+        }
+    }
+
+    public static void BufferSubData<T>(GLBufferTarget target, int offset, T[] data) where T : unmanaged
+    {
+        fixed (T* ptr = &data[0])
+        {
+            _glBufferSubData((uint)target, offset, data.Length * sizeof(T), ptr);
+        }
+    }
+
+    public static void BufferSubData(GLBufferTarget target, int offset, int sizeInBytes, void* data)
+    {
+        _glBufferSubData((uint)target, offset, sizeInBytes, data);
     }
 }

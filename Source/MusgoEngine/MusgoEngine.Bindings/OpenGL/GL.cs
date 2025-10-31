@@ -32,6 +32,7 @@ public static unsafe partial class GL
         // UniformVariables
         _glGetUniformLocation = (delegate* unmanaged[Cdecl]<uint, byte*, int>)GetProcAddressPointer("glGetUniformLocation");
         _glGetActiveUniform = (delegate* unmanaged[Cdecl]<uint, uint, int, int*, int*, uint*, byte*, void>)GetProcAddressPointer("glGetActiveUniform");
+        _glGetUniformBlockIndex = (delegate* unmanaged[Cdecl]<uint, byte*, uint>)GetProcAddressPointer("glGetUniformBlockIndex");
 
         // LoadUniformVars
         _glUniform1f = (delegate* unmanaged[Cdecl]<int, float, void>)GetProcAddressPointer("glUniform1f");
@@ -48,9 +49,11 @@ public static unsafe partial class GL
 
         // CreateBindBuffersObjects
         _glBindBuffer = (delegate* unmanaged[Cdecl]<uint, uint, void>)GetProcAddressPointer("glBindBuffer");
+        _glBindBufferBase = (delegate* unmanaged[Cdecl]<uint, uint, uint, void>)GetProcAddressPointer("glBindBufferBase");
 
         // CreateModifyBufferObjectData
         _glBufferData = (delegate* unmanaged[Cdecl]<uint, nuint, void*, uint, void>)GetProcAddressPointer("glBufferData");
+        _glBufferSubData = (delegate* unmanaged[Cdecl]<uint, int, int, void*, void>)GetProcAddressPointer("glBufferSubData");
 
         // GenericVertexAttributeArrays
         _glVertexAttribPointer = (delegate* unmanaged[Cdecl]<uint, int, uint, bool, int, IntPtr, void>)GetProcAddressPointer("glVertexAttribPointer");
