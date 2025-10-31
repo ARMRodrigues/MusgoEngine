@@ -4,6 +4,8 @@ namespace MusgoEngine;
 
 public static class MathUtils
 {
+    public static float ToRadians(this float degrees) => degrees * (MathF.PI / 180f);
+
     public static float[] ToOpenGLMatrixArray(in Matrix4x4 m)
     {
         return

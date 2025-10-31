@@ -13,7 +13,7 @@ public class MeshRendererSystem(EntityManager entityManager) : GameSystem
         foreach (var (entity, meshRenderer) in entityManager.GetEntitiesWith<MeshRenderer>())
         {
             if (!entityManager.TryGetComponent(entity, out Transform transform)) continue;
-            meshRenderer.Render(in transform.WorldMatrix, in view, in proj);
+            meshRenderer.Render(transform.WorldMatrix, in view, in proj);
         }
     }
 

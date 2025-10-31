@@ -71,10 +71,10 @@ public class TransformSystem(EntityManager entityManager) : GameSystem
     {
         if (transform.HasChanged)
         {
-            transform.RebuildLocalMatrix();
+            transform.RebuildMatrices();
         }
 
-        transform.SetWorldMatrix(transform.LocalMatrix * parentWorld);
+        transform.WorldMatrix = (transform.LocalMatrix * parentWorld);
         //transform.WorldMatrix = parentWorld * transform.LocalMatrix;
 
         if (!_childrenCache.TryGetValue(entity.Id, out var children)) return;

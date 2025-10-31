@@ -16,14 +16,10 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
 
             if (!transform.HasChanged && !camera.HasChanged) continue;
 
-            if (transform.LocalMatrix == Matrix4x4.Identity)
-                transform.RebuildLocalMatrix();
+            /*if (transform.LocalMatrix == Matrix4x4.Identity)
+                transform.RebuildLocalMatrix();*/
 
-            camera.View = Matrix4x4.CreateLookAt(
-                transform.Position,
-                transform.Position + transform.Forward,
-                transform.Up
-            );
+            camera.View = GetViewMatrix(transform);
 
             camera.Aspect = (_height > 0f) ? (_width / _height) : 1f;
 
@@ -50,6 +46,15 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
                 );
             }
         }
+    }
+
+    private static Matrix4x4 GetViewMatrix(Transform transform)
+    {
+        var position = transform.Position;
+        var forward = -transform.Forward;
+        var up = transform.Up;
+
+        return Matrix4x4.CreateLookAt(position, position + forward, up);
     }
 
     public void OnResize(float w, float h)

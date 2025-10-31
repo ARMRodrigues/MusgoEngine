@@ -1,83 +1,136 @@
 using System.Numerics;
 
-namespace MusgoEngine;
+namespace MusgoEngine.Core;
 
 public class Transform : GameComponent
 {
-    public Vector3 LocalPosition { get; set; } = Vector3.Zero;
-    public Quaternion LocalRotation { get; set; } = Quaternion.Identity;
-    public Vector3 LocalScale { get; set; } = Vector3.One;
-
-    public Matrix4x4 LocalMatrix { get; private set; } = Matrix4x4.Identity;
-    public ref readonly Matrix4x4 WorldMatrix => ref _worldMatrix;
+    private Vector3 _localPosition;
+    private Vector3 _localRotation;
+    private Vector3 _localScale = Vector3.One;
+    private Quaternion _rotation = Quaternion.Identity;
+    private Matrix4x4 _localMatrix = Matrix4x4.Identity;
     private Matrix4x4 _worldMatrix = Matrix4x4.Identity;
-    public bool HasChanged { get; private set; } = true;
 
-    public void SetLocalPosition(Vector3 p)
+    public bool HasChanged { get; private set; }
+
+    public Vector3 LocalPosition
     {
-        LocalPosition = p;
-        HasChanged = true;
+        get => _localPosition;
+        set
+        {
+            _localPosition = value;
+            HasChanged = true;
+        }
     }
 
-    public void SetLocalRotationEuler(Vector3 eulerDeg)
+    public Vector3 Position => new(WorldMatrix.M41, WorldMatrix.M42, WorldMatrix.M43);
+
+    public Vector3 LocalEulerAngles
     {
-        var radians = new Vector3(
-            MathF.PI / 180f * eulerDeg.X,
-            MathF.PI / 180f * eulerDeg.Y,
-            MathF.PI / 180f * eulerDeg.Z
-        );
-        LocalRotation = Quaternion.CreateFromYawPitchRoll(radians.Y, radians.X, radians.Z);
-        HasChanged = true;
+        get => _localRotation;
+        set
+        {
+            _localRotation = value;
+            var radians = value * (MathF.PI / 180f);
+            _rotation = Quaternion.CreateFromYawPitchRoll(radians.Y, radians.X, radians.Z);
+            HasChanged = true;
+        }
     }
 
-    public void SetLocalRotationQuat(Quaternion q)
+    public Quaternion LocalRotation
     {
-        LocalRotation = q;
-        HasChanged = true;
+        get => _rotation;
+        set
+        {
+            _rotation = value;
+            _localRotation = RotationToEulerAngles(_rotation);
+            HasChanged = true;
+        }
     }
 
-    public void SetLocalScale(Vector3 s)
+    public Vector3 LocalScale
     {
-        LocalScale = s;
-        HasChanged = true;
+        get => _localScale;
+        set
+        {
+            _localScale = value;
+            HasChanged = true;
+        }
     }
 
-    internal void SetWorldMatrix(Matrix4x4 world)
+    public Matrix4x4 LocalMatrix
     {
-        _worldMatrix = world;
+        get
+        {
+            _localMatrix =
+                Matrix4x4.CreateScale(_localScale) *
+                Matrix4x4.CreateFromQuaternion(_rotation) *
+                Matrix4x4.CreateTranslation(_localPosition);
+            return _localMatrix;
+        }
     }
 
-    public void RebuildLocalMatrix()
+    public Matrix4x4 WorldMatrix
     {
-        LocalMatrix =
-            Matrix4x4.CreateScale(LocalScale) *
-            Matrix4x4.CreateFromQuaternion(LocalRotation) *
-            Matrix4x4.CreateTranslation(LocalPosition);
+        get => _worldMatrix;
+        set
+        {
+            _worldMatrix = value;
+            HasChanged = true;
+        }
+    }
+
+    public Vector3 Right   => Vector3.Normalize(new(WorldMatrix.M11, WorldMatrix.M12, WorldMatrix.M13));
+    public Vector3 Up      => Vector3.Normalize(new(WorldMatrix.M21, WorldMatrix.M22, WorldMatrix.M23));
+    public Vector3 Forward => Vector3.Normalize(new Vector3(WorldMatrix.M31, WorldMatrix.M32, WorldMatrix.M33));
+
+    public Transform(Vector3 position = default)
+    {
+        LocalPosition = position;
+        RebuildMatrices();
+    }
+
+    public void LookAt(Vector3 targetPosition, Vector3 worldUp)
+    {
+        var direction = Vector3.Normalize(targetPosition - Position);
+
+        if (direction == Vector3.Zero)
+            direction = -Vector3.UnitZ;
+
+        var viewMatrix = Matrix4x4.CreateLookAt(Position, targetPosition, worldUp);
+
+        LocalRotation = Quaternion.CreateFromRotationMatrix(Matrix4x4.Transpose(viewMatrix));
+    }
+
+    public void RotateAround(Vector3 target, float angleDeg, Vector3 up)
+    {
+        // Passo 1: Direção atual em relação ao alvo
+        var direction = Position - target;
+
+        // Passo 2: Cria o quaternion de rotação
+        var rotation = Quaternion.CreateFromAxisAngle(Vector3.Normalize(up), MathUtils.ToRadians(angleDeg));
+
+        // Passo 3: Aplica a rotação
+        var rotatedDirection = Vector3.Transform(direction, rotation);
+
+        // Passo 4: Atualiza a posição local
+        LocalPosition = target + rotatedDirection;
+
+        // Opcional: rotacionar também o próprio transform (orientação)
+        LocalRotation = rotation * LocalRotation;
+    }
+
+    public void RebuildMatrices()
+    {
         _worldMatrix = LocalMatrix;
         HasChanged = false;
     }
 
-    public Vector3 Right => Vector3.Normalize(new Vector3(WorldMatrix.M11, WorldMatrix.M12, WorldMatrix.M13));
-    public Vector3 Up => Vector3.Normalize(new Vector3(WorldMatrix.M21, WorldMatrix.M22, WorldMatrix.M23));
-    public Vector3 Forward => Vector3.Normalize(-new Vector3(WorldMatrix.M31, WorldMatrix.M32, WorldMatrix.M33));
-    public Vector3 Position => new(WorldMatrix.M41, WorldMatrix.M42, WorldMatrix.M43);
-
-    public void LookAt(Vector3 target, Vector3 worldUp)
+    public static Vector3 RotationToEulerAngles(Quaternion q)
     {
-        var pos = Position;
-        var zAxis = Vector3.Normalize(pos - target);
-        var xAxis = Vector3.Normalize(Vector3.Cross(worldUp, zAxis));
-        var yAxis = Vector3.Cross(zAxis, xAxis);
-
-        var rotMatrix = new Matrix4x4(
-            xAxis.X, xAxis.Y, xAxis.Z, 0,
-            yAxis.X, yAxis.Y, yAxis.Z, 0,
-            zAxis.X, zAxis.Y, zAxis.Z, 0,
-            0, 0, 0, 1
-        );
-
-        LocalRotation = Quaternion.CreateFromRotationMatrix(rotMatrix);
-        HasChanged = true;
+        var pitch = MathF.Asin(2.0f * (q.W * q.X - q.Y * q.Z));
+        var yaw   = MathF.Atan2(2.0f * (q.W * q.Y + q.Z * q.X), 1 - 2 * (q.X * q.X + q.Y * q.Y));
+        var roll  = MathF.Atan2(2.0f * (q.W * q.Z + q.X * q.Y), 1 - 2 * (q.Y * q.Y + q.Z * q.Z));
+        return new Vector3(pitch, yaw, roll) * (180f / MathF.PI);
     }
 }
-
