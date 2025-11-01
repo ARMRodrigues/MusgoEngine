@@ -13,6 +13,7 @@ public static unsafe class EGL
     private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, int*, IntPtr> _eglCreateWindowSurface;
     private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, IntPtr, IntPtr, int> _eglMakeCurrent;
     private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> _eglSwapBuffers;
+    private static delegate* unmanaged[Cdecl]<IntPtr, int, int> _eglSwapInterval;
     private static delegate* unmanaged[Cdecl]<byte*, nint> _eglGetProcAddress;
     private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> _eglDestroySurface;
     private static delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int> _eglDestroyContext;
@@ -38,6 +39,8 @@ public static unsafe class EGL
             NativeLibrary.GetExport(handle, "eglMakeCurrent");
         _eglSwapBuffers = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int>)
             NativeLibrary.GetExport(handle, "eglSwapBuffers");
+        _eglSwapInterval = (delegate* unmanaged[Cdecl]<IntPtr, int, int>)
+            NativeLibrary.GetExport(handle, "eglSwapInterval");
         _eglGetProcAddress = (delegate* unmanaged[Cdecl]<byte*, nint>)
             NativeLibrary.GetExport(handle, "eglGetProcAddress");
         _eglDestroySurface = (delegate* unmanaged[Cdecl]<IntPtr, IntPtr, int>)
@@ -94,6 +97,9 @@ public static unsafe class EGL
 
     public static bool SwapBuffers(EGLDisplay display, EGLSurface surface) =>
         _eglSwapBuffers(display.Handle, surface.Handle) != 0;
+
+    public static bool SwapInterval(EGLDisplay display, int interval) =>
+        _eglSwapInterval(display.Handle, interval) != 0;
 
     public static delegate* unmanaged[Cdecl]<byte*, nint> GetProcAddress
         => _eglGetProcAddress;

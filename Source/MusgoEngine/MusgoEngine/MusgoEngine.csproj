@@ -12,16 +12,9 @@
       <ProjectReference Include="..\MusgoEngine.Bindings\MusgoEngine.Bindings.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Binder\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Remove="Binder\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Binder\**" />
-    </ItemGroup>
-
+    <PropertyGroup 
+        Condition="'$(OS)' == 'Windows_NT'">
+        <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+    
 </Project>

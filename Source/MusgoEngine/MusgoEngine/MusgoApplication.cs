@@ -16,10 +16,9 @@ public class MusgoApplication
     private readonly bool _headless = false;
     private readonly bool _vsyncEnabled = false;
     private volatile bool _running;
-    private double _nextFrameTime = 0;
 
     // TODO : Remove and read from the game config files
-    private readonly uint _targetFps = 0;
+    private readonly uint _targetFps = 120;
 
     public MusgoApplication(WindowSettings settings, IGame game)
     {
@@ -47,10 +46,12 @@ public class MusgoApplication
     {
         _game.Initialize(_sceneManager);
         _sceneManager.InitializeActiveScene();
+        TimerPrecision.EnableHighPrecision();
         while (_running && _windowSystem.IsWindowOpen())
         {
             RunFrame();
         }
+        TimerPrecision.DisableHighPrecision();
         _sceneManager.ShutdownActiveScene();
         _game.Shutdown();
     }
@@ -60,7 +61,7 @@ public class MusgoApplication
         var frameStart = Stopwatch.GetTimestamp();
 
         _windowSystem.PollEvents();
-        _gameTime.Update();
+        _gameTime.Update(frameStart);
 
         _sceneManager.BeginFrameActiveScene();
         _sceneManager.UpdateActiveScene();
@@ -79,26 +80,30 @@ public class MusgoApplication
 
     private void LimitFramerate(long frameStart)
     {
-        const double msPerSecond = 1000.0;
-        var frameDuration = msPerSecond / _targetFps;
-        var now = (Stopwatch.GetTimestamp() * msPerSecond) / Stopwatch.Frequency;
+        var targetTicks = Stopwatch.Frequency / (double)_targetFps;
+        var targetTime = frameStart + (long)targetTicks;
 
-        if (_nextFrameTime == 0)
-            _nextFrameTime = now + frameDuration;
-        else
-            _nextFrameTime += frameDuration;
-
-        double remaining;
-        while ((remaining = _nextFrameTime - now) > 0)
+        while (true)
         {
-            if (remaining > 2.0)
-                Thread.Sleep(1);
-            else
-                Thread.SpinWait(100);
+            var now = Stopwatch.GetTimestamp();
+            var remainingTicks = targetTime - now;
 
-            now = (Stopwatch.GetTimestamp() * msPerSecond) / Stopwatch.Frequency;
+            if (remainingTicks <= 0)
+                break;
+
+            var remainingMs = remainingTicks * 1000.0 / Stopwatch.Frequency;
+
+            if (remainingMs > 3.0)
+            {
+                Thread.Sleep(1);
+            }
+            else
+            {
+                Thread.SpinWait(50);
+            }
         }
     }
+
 
     public void Stop()
     {

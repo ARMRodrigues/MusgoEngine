@@ -83,6 +83,8 @@ public class GLESGraphicApi : IGraphicApi
         //GL.Disable(0x0B71);
         //GL.Disable(0x0B44);
 
+        EGL.SwapInterval(_eglDisplay, 0);
+
         Console.WriteLine("Vendor:   " + GL.GetString(GLStringName.Vendor));
         Console.WriteLine("Renderer: " + GL.GetString(GLStringName.Renderer));
         Console.WriteLine("Version:  " + GL.GetString(GLStringName.Version));
@@ -101,7 +103,6 @@ public class GLESGraphicApi : IGraphicApi
 
     public void EndDraw()
     {
-        GL.Finish();
         EGL.SwapBuffers(_eglDisplay, _eglSurface);
     }
 

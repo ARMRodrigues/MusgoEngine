@@ -26,7 +26,7 @@ public class Game : IGame
         };
         scene.EntityManager.AddComponent(cameraEntity, cameraTransform);
         scene.EntityManager.AddComponent(cameraEntity, camera);
-        //scene.EntityManager.AddComponent(cameraEntity, new RotateTheCamera());
+        scene.EntityManager.AddComponent(cameraEntity, new RotateTheCamera());
 
         // Mesh + Material compartilhados
         var mesh = MeshFactory.Create("Cube", MeshPrimitives.CreateCube());

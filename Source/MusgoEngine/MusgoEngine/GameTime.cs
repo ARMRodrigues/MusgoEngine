@@ -2,37 +2,46 @@ using System.Diagnostics;
 
 namespace MusgoEngine;
 
-public class GameTime(float fixedDeltaTime = 1f / 60f)
+public class GameTime
 {
-    private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-
-    private float _previousTime;
-    private float _accumulator;
+    private double _previousTime;
+    private double _accumulator;
 
     public static float DeltaTime { get; private set; }
+    public static float FixedDeltaTime { get; private set; }
+    public static float TotalTime { get; private set; }
+    public static int FrameCount { get; private set; }
 
-    public float FixedDeltaTime { get; } = fixedDeltaTime;
-    public float TotalTime { get; private set; }
-    public int FrameCount { get; private set; }
-
-    public void Update()
+    public GameTime(float fixedDeltaTime = 1f / 50f)
     {
-        float currentTime = (float)_stopwatch.Elapsed.TotalSeconds;
-        DeltaTime = currentTime - _previousTime;
+        FixedDeltaTime = fixedDeltaTime;
+        _previousTime = 0;
+        _accumulator = 0;
+    }
+
+    /// <summary>
+    /// Update GameTime using the frame start timestamp
+    /// </summary>
+    public void Update(long frameStartTimestamp)
+    {
+        // Convert ticks to seconds
+        var currentTime = frameStartTimestamp / (double)Stopwatch.Frequency;
+
+        DeltaTime = (float)(currentTime - _previousTime);
         _previousTime = currentTime;
-        TotalTime = currentTime;
+
+        TotalTime = (float)currentTime;
         FrameCount++;
         _accumulator += DeltaTime;
     }
 
+    /// <summary>
+    /// Determines if a fixed update should run based on the fixed delta time
+    /// </summary>
     public bool ShouldRunFixedUpdate()
     {
-        if (_accumulator >= FixedDeltaTime)
-        {
-            _accumulator -= FixedDeltaTime;
-            return true;
-        }
-        return false;
+        if (!(_accumulator >= FixedDeltaTime)) return false;
+        _accumulator -= FixedDeltaTime;
+        return true;
     }
 }
-
