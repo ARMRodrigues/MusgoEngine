@@ -1,7 +1,7 @@
-using System.Numerics;
 using MusgoEngine.Core;
 using MusgoEngine.Graphics;
 using MusgoEngine.Graphics.Backends.GLES;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Game;
 
@@ -21,8 +21,8 @@ public class Game : IGame
         };
         var cameraTransform = new Transform()
         {
-            LocalPosition = new Vector3(-10, 0, 30),
-            LocalEulerAngles = new Vector3(15, 0, 0),
+            LocalPosition = new Vector3(0, 0, 30),
+            //LocalEulerAngles = new Vector3(15, 0, 0),
         };
         scene.EntityManager.AddComponent(cameraEntity, cameraTransform);
         scene.EntityManager.AddComponent(cameraEntity, camera);

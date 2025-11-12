@@ -1,5 +1,4 @@
-using System.Numerics;
-using MusgoEngine.Graphics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Core;
 
@@ -8,7 +7,7 @@ public class MeshRenderer(Mesh mesh, Material material) : GameComponent
     public Mesh Mesh { get; } = mesh;
     public Material Material { get; } = material;
 
-    public void Render(in Matrix4x4 model, in Matrix4x4 view, in Matrix4x4 projection)
+    public void Render(in Matrix4 model, in Matrix4 view, in Matrix4 projection)
     {
         Material.Bind();
 

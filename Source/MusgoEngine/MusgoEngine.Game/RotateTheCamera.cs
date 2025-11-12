@@ -1,4 +1,4 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Game;
 

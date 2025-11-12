@@ -1,6 +1,6 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
-namespace MusgoEngine.Core;
+namespace MusgoEngine;
 
 public enum CameraType
 {
@@ -55,15 +55,15 @@ public class Camera : GameComponent
         set { _orthoSize = value; HasChanged = true; }
     }
 
-    private Matrix4x4 _view = Matrix4x4.Identity;
-    public Matrix4x4 View
+    private Matrix4 _view = Matrix4.Identity;
+    public Matrix4 View
     {
         get => _view;
         set { _view = value; HasChanged = false; }
     }
 
-    private Matrix4x4 _projection = Matrix4x4.Identity;
-    public Matrix4x4 Projection
+    private Matrix4 _projection = Matrix4.Identity;
+    public Matrix4 Projection
     {
         get => _projection;
         set { _projection = value; HasChanged = false; }

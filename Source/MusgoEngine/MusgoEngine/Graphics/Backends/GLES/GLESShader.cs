@@ -1,5 +1,5 @@
-using System.Numerics;
 using MusgoEngine.Bindings.OpenGL;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Graphics.Backends.GLES;
 
@@ -36,11 +36,11 @@ public class GLESShader : Shader
             GL.Uniform1f(location, value);
     }
 
-    public override void SetUniform(string name, in Matrix4x4 value, bool transpose = false)
+    public override void SetUniform(string name, in Matrix4 value, bool transpose = false)
     {
         var location = GetLocation(name);
         if (location != -1)
-            GL.UniformMatrix4fv(location, transpose, MathUtils.ToOpenGLMatrixArray(value));
+            GL.UniformMatrix4fv(location, transpose, (value));
     }
 
     public override void SetUniform(string name, float[] value, bool transpose = false)

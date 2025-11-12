@@ -1,4 +1,4 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Core;
 
@@ -25,7 +25,7 @@ public class TransformSystem(EntityManager entityManager) : GameSystem
         {
             if (!entityManager.TryGetComponent(rootEntity, out Transform rootTransform)) continue;
 
-            UpdateTransformHierarchy(rootEntity, rootTransform, Matrix4x4.Identity);
+            UpdateTransformHierarchy(rootEntity, rootTransform, Matrix4.Identity);
         }
     }
 
@@ -67,7 +67,7 @@ public class TransformSystem(EntityManager entityManager) : GameSystem
         }
     }
 
-    private void UpdateTransformHierarchy(Entity entity, Transform transform, Matrix4x4 parentWorld)
+    private void UpdateTransformHierarchy(Entity entity, Transform transform, Matrix4 parentWorld)
     {
         if (transform.HasChanged)
         {

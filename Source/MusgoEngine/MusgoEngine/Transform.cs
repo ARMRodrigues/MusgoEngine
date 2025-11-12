@@ -1,4 +1,4 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Core;
 
@@ -8,8 +8,8 @@ public class Transform : GameComponent
     private Vector3 _localRotation;
     private Vector3 _localScale = Vector3.One;
     private Quaternion _rotation = Quaternion.Identity;
-    private Matrix4x4 _localMatrix = Matrix4x4.Identity;
-    private Matrix4x4 _worldMatrix = Matrix4x4.Identity;
+    private Matrix4 _localMatrix = Matrix4.Identity;
+    private Matrix4 _worldMatrix = Matrix4.Identity;
 
     public bool HasChanged { get; private set; }
 
@@ -32,7 +32,7 @@ public class Transform : GameComponent
         {
             _localRotation = value;
             var radians = value * (MathF.PI / 180f);
-            _rotation = Quaternion.CreateFromYawPitchRoll(radians.Y, radians.X, radians.Z);
+            _rotation = Quaternion.FromYawPitchRoll(radians.Y, radians.X, radians.Z);
             HasChanged = true;
         }
     }
@@ -58,19 +58,19 @@ public class Transform : GameComponent
         }
     }
 
-    public Matrix4x4 LocalMatrix
+    public Matrix4 LocalMatrix
     {
         get
         {
             _localMatrix =
-                Matrix4x4.CreateScale(_localScale) *
-                Matrix4x4.CreateFromQuaternion(_rotation) *
-                Matrix4x4.CreateTranslation(_localPosition);
+                Matrix4.CreateScale(_localScale) *
+                Matrix4.CreateFromQuaternion(_rotation) *
+                Matrix4.CreateTranslation(_localPosition);
             return _localMatrix;
         }
     }
 
-    public Matrix4x4 WorldMatrix
+    public Matrix4 WorldMatrix
     {
         get => _worldMatrix;
         set
@@ -80,9 +80,11 @@ public class Transform : GameComponent
         }
     }
 
-    public Vector3 Right   => Vector3.Normalize(new(WorldMatrix.M11, WorldMatrix.M12, WorldMatrix.M13));
-    public Vector3 Up      => Vector3.Normalize(new(WorldMatrix.M21, WorldMatrix.M22, WorldMatrix.M23));
-    public Vector3 Forward => Vector3.Normalize(new Vector3(WorldMatrix.M31, WorldMatrix.M32, WorldMatrix.M33));
+    public Vector3 Right   => new Vector3(WorldMatrix.M11, WorldMatrix.M12, WorldMatrix.M13).Normalized();
+    public Vector3 Up      => new Vector3(WorldMatrix.M21, WorldMatrix.M22, WorldMatrix.M23).Normalized();
+    public Vector3 Forward => (-new Vector3(WorldMatrix.M31, WorldMatrix.M32, WorldMatrix.M33)).Normalized();
+
+
 
     public Transform(Vector3 position = default)
     {
@@ -92,31 +94,22 @@ public class Transform : GameComponent
 
     public void LookAt(Vector3 targetPosition, Vector3 worldUp)
     {
-        var direction = Vector3.Normalize(targetPosition - Position);
+        var direction = (targetPosition - Position).Normalized();
 
         if (direction == Vector3.Zero)
-            direction = -Vector3.UnitZ;
+            direction = Vector3.Forward;
 
-        var viewMatrix = Matrix4x4.CreateLookAt(Position, targetPosition, worldUp);
-
-        LocalRotation = Quaternion.CreateFromRotationMatrix(Matrix4x4.Transpose(viewMatrix));
+        var viewMatrix = Matrix4.CreateLookAt(Position, targetPosition, worldUp);
+        LocalRotation = Quaternion.FromMatrix((viewMatrix));
     }
 
     public void RotateAround(Vector3 target, float angleDeg, Vector3 up)
     {
-        // Passo 1: Direção atual em relação ao alvo
         var direction = Position - target;
-
-        // Passo 2: Cria o quaternion de rotação
-        var rotation = Quaternion.CreateFromAxisAngle(Vector3.Normalize(up), MathUtils.ToRadians(angleDeg));
-
-        // Passo 3: Aplica a rotação
+        var rotation = Quaternion.FromAxisAngle(up.Normalized(), MathUtils.ToRadians(angleDeg));
         var rotatedDirection = Vector3.Transform(direction, rotation);
 
-        // Passo 4: Atualiza a posição local
         LocalPosition = target + rotatedDirection;
-
-        // Opcional: rotacionar também o próprio transform (orientação)
         LocalRotation = rotation * LocalRotation;
     }
 

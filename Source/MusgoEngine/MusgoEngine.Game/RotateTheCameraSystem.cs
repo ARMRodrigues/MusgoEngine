@@ -1,5 +1,5 @@
-using System.Numerics;
 using MusgoEngine.Core;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Game;
 
@@ -13,9 +13,9 @@ public class RotateTheCameraSystem(EntityManager entityManager)  : GameSystem
         {
             if (!entityManager.TryGetComponent(entity, out Transform transform)) continue;
             {
-                transform.RotateAround(rotateCamera.Target, rotateCamera.RotateSpeed * dt, Vector3.UnitY);
+                transform.RotateAround(rotateCamera.Target, rotateCamera.RotateSpeed * dt, Vector3.Up);
 
-                transform.LookAt(rotateCamera.Target, Vector3.UnitY);
+                transform.LookAt(rotateCamera.Target, Vector3.Up);
             }
         }
     }

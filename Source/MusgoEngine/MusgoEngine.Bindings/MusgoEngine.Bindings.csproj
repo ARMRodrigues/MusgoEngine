@@ -9,4 +9,8 @@
         <Platforms>x64</Platforms>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MusgoEngine.Math\MusgoEngine.Math.csproj" />
+    </ItemGroup>
+
 </Project>

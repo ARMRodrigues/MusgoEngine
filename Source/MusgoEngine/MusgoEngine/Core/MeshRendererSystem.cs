@@ -1,4 +1,5 @@
 using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Core;
 
@@ -7,8 +8,8 @@ public class MeshRendererSystem(EntityManager entityManager) : GameSystem
     public override void Render()
     {
         var camera = entityManager.GetComponents<Camera>().FirstOrDefault();
-        var view = camera?.View ?? Matrix4x4.Identity;
-        var proj = camera?.Projection ?? Matrix4x4.Identity;
+        var view = camera?.View ?? Matrix4.Identity;
+        var proj = camera?.Projection ?? Matrix4.Identity;
 
         foreach (var (entity, meshRenderer) in entityManager.GetEntitiesWith<MeshRenderer>())
         {

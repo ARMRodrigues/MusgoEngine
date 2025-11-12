@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using MusgoEngine.Core;
+﻿using MusgoEngine.Core;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Game;
 
@@ -16,7 +16,7 @@ public class RotateMeshSystem(EntityManager entityManager) : GameSystem
             {
                 var eulerDelta = new Vector3(rotate.Speed * dt);
 
-                var incremental = Quaternion.CreateFromYawPitchRoll(
+                var incremental = Quaternion.FromYawPitchRoll(
                     eulerDelta.Y, eulerDelta.X, eulerDelta.Z
                 );
 

@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusgoEngine.Native", "Musgo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusgoEngine.Game", "MusgoEngine.Game\MusgoEngine.Game.csproj", "{5A6CD88B-720A-47ED-A8B7-BDFCB0C62877}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusgoEngine.Math", "MusgoEngine.Math\MusgoEngine.Math.csproj", "{E90FA503-BA23-45CE-82FF-9BF870BD965D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 								Debug|x64 = Debug|x64
@@ -36,5 +38,9 @@ Global
 		{5A6CD88B-720A-47ED-A8B7-BDFCB0C62877}.Debug|x64.Build.0 = Debug|Any CPU
 		{5A6CD88B-720A-47ED-A8B7-BDFCB0C62877}.Release|x64.ActiveCfg = Release|Any CPU
 		{5A6CD88B-720A-47ED-A8B7-BDFCB0C62877}.Release|x64.Build.0 = Release|Any CPU
+		{E90FA503-BA23-45CE-82FF-9BF870BD965D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E90FA503-BA23-45CE-82FF-9BF870BD965D}.Debug|x64.Build.0 = Debug|Any CPU
+		{E90FA503-BA23-45CE-82FF-9BF870BD965D}.Release|x64.ActiveCfg = Release|Any CPU
+		{E90FA503-BA23-45CE-82FF-9BF870BD965D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

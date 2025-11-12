@@ -1,4 +1,4 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Bindings.OpenGL;
 
@@ -12,7 +12,7 @@ public static unsafe partial class GL
     public static void UniformMatrix4fv(int location, int count, bool transpose, float* value) =>
         _glUniformMatrix4fv(location, count, transpose, value);
 
-    public static void UniformMatrix4fv(int location,bool transpose, in Matrix4x4 matrix)
+    public static void UniformMatrix4fv(int location,bool transpose, in Matrix4 matrix)
     {
         fixed (float* ptr = &matrix.M11)
         {

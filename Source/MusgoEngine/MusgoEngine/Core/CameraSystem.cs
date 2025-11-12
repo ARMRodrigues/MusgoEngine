@@ -1,4 +1,4 @@
-using System.Numerics;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Core;
 
@@ -16,8 +16,8 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
 
             if (!transform.HasChanged && !camera.HasChanged) continue;
 
-            /*if (transform.LocalMatrix == Matrix4x4.Identity)
-                transform.RebuildLocalMatrix();*/
+            if (transform.LocalMatrix == Matrix4.Identity)
+                transform.RebuildMatrices();
 
             camera.View = GetViewMatrix(transform);
 
@@ -25,9 +25,8 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
 
             if (camera.Type == CameraType.Perspective)
             {
-                var fovRad = MathF.PI / 180f * camera.FieldOfViewDegrees;
-                camera.Projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                    fovRad,
+                camera.Projection = Matrix4.CreatePerspectiveFieldOfView(
+                    camera.FieldOfViewDegrees,
                     camera.Aspect,
                     camera.NearPlane,
                     camera.FarPlane
@@ -40,7 +39,7 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
                 var bottom = -camera.OrthographicSize;
                 var top    =  camera.OrthographicSize;
 
-                camera.Projection = Matrix4x4.CreateOrthographicOffCenter(
+                camera.Projection = Matrix4.CreateOrthographicOffCenter(
                     left, right, bottom, top,
                     camera.NearPlane, camera.FarPlane
                 );
@@ -48,13 +47,13 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
         }
     }
 
-    private static Matrix4x4 GetViewMatrix(Transform transform)
+    private static Matrix4 GetViewMatrix(Transform transform)
     {
         var position = transform.Position;
-        var forward = -transform.Forward;
+        var forward = transform.Forward;
         var up = transform.Up;
 
-        return Matrix4x4.CreateLookAt(position, position + forward, up);
+        return Matrix4.CreateLookAt(position, position + forward, up);
     }
 
     public void OnResize(float w, float h)
