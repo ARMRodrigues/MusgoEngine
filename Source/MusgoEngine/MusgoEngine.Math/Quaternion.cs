@@ -161,6 +161,31 @@ public struct Quaternion : IEquatable<Quaternion>
     }
 
     /// <summary>
+    /// Creates a quaternion from pitch (X), yaw (Y), and roll (Z) angles in radians.
+    /// </summary>
+    /// <param name="pitch">Rotation around the X axis.</param>
+    /// <param name="yaw">Rotation around the Y axis.</param>
+    /// <param name="roll">Rotation around the Z axis.</param>
+    /// <returns>The resulting quaternion.</returns>
+    public static Quaternion FromPitchYawRoll(float pitch, float yaw, float roll)
+    {
+        var cx = MathF.Cos(pitch * 0.5f);
+        var sx = MathF.Sin(pitch * 0.5f);
+        var cy = MathF.Cos(yaw   * 0.5f);
+        var sy = MathF.Sin(yaw   * 0.5f);
+        var cz = MathF.Cos(roll  * 0.5f);
+        var sz = MathF.Sin(roll  * 0.5f);
+
+        // Ordem: Pitch (X) → Yaw (Y) → Roll (Z)
+        return new Quaternion(
+            sx * cy * cz + cx * sy * sz, // X
+            cx * sy * cz - sx * cy * sz, // Y
+            cx * cy * sz + sx * sy * cz, // Z
+            cx * cy * cz - sx * sy * sz  // W
+        );
+    }
+
+    /// <summary>
     /// Converts this quaternion to a 3x3 rotation matrix.
     /// </summary>
     /// <returns>A rotation matrix representing this quaternion.</returns>

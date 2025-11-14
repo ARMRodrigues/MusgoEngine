@@ -1,4 +1,6 @@
+
 using MusgoEngine.Bindings.OpenGL;
+using MusgoEngine.Math;
 
 namespace MusgoEngine.Graphics.Backends.GLES;
 
@@ -11,7 +13,7 @@ public class GLESSceneGlobals : ISceneGlobals
         _uboHandle = GL.GenBuffer();
         GL.BindBuffer(GLBufferTarget.UniformBuffer, _uboHandle);
 
-        var emptyBuffer = new float[16];
+        var emptyBuffer = new float[12];
         GL.BufferData(GLBufferTarget.UniformBuffer, emptyBuffer, GLBufferUsageHint.DynamicDraw);
 
         GL.BindBufferBase(GLBufferRangeTarget.UniformBuffer, 0, _uboHandle);
@@ -19,11 +21,11 @@ public class GLESSceneGlobals : ISceneGlobals
         GL.BindBuffer(GLBufferTarget.UniformBuffer, 0);
     }
 
-    public void Update(Scene scene)
+    public void Update(SceneEnvironment sceneEnvironment, Vector3 directionLight)
     {
         GL.BindBuffer(GLBufferTarget.UniformBuffer, _uboHandle);
 
-        var buffer = ToFloatArray(scene.SceneEnvironment);
+        var buffer = ToFloatArray(sceneEnvironment, directionLight);
 
         GL.BufferSubData(GLBufferTarget.UniformBuffer, 0, buffer);
 
@@ -37,12 +39,12 @@ public class GLESSceneGlobals : ISceneGlobals
         _uboHandle = 0;
     }
 
-    private static float[] ToFloatArray(SceneEnvironment env)
+    private static float[] ToFloatArray(SceneEnvironment env, Vector3 directionLight)
     {
-        // Vetor de floats com padding para std140
         return
         [
-            env.MainLight.Direction.X, env.MainLight.Direction.Y, env.MainLight.Direction.Z, 0f,
+            //directionLight.X, directionLight.Y, directionLight.Z, 0f,
+            0.250f, -0.866f,  0.433f, 0f,
             env.MainLight.Color.R * env.MainLight.Intensity,
             env.MainLight.Color.G * env.MainLight.Intensity,
             env.MainLight.Color.B * env.MainLight.Intensity,

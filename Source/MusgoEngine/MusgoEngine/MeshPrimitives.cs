@@ -98,7 +98,7 @@ public static class MeshPrimitives
         for(int i=0; i<data.Positions.Count; i++)
             data.Tangents.Add(new Vector4(1,0,0,1));
 
-        Vector3[] faceColors = {
+        /*Vector3[] faceColors = {
             new Vector3(1,0,0), // Front - vermelho
             new Vector3(0,1,0), // Back - verde
             new Vector3(0,0,1), // Left - azul
@@ -108,7 +108,7 @@ public static class MeshPrimitives
         };
         for (int f = 0; f < 6; f++)
         for (int v = 0; v < 4; v++)
-            data.Colors.Add(faceColors[f]);
+            data.Colors.Add(faceColors[f]);*/
 
 
         // UV0

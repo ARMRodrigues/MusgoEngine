@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace MusgoEngine
 {
-    public static class TimerPrecision
+    internal static class TimerPrecision
     {
         private static bool _enabled;
 

@@ -1,8 +1,10 @@
+using MusgoEngine.Math;
+
 namespace MusgoEngine.Graphics;
 
 public interface ISceneGlobals
 {
     void Initialize();
-    void Update(Scene scene);
+    void Update(SceneEnvironment sceneEnvironment, Vector3 directionLight);
     void Shutdown();
 }

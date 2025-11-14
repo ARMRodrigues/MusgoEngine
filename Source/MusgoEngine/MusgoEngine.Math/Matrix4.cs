@@ -48,21 +48,16 @@ public struct Matrix4 : IEquatable<Matrix4>
     /// <summary>Creates a rotation matrix from a quaternion.</summary>
     public static Matrix4 CreateFromQuaternion(Quaternion q)
     {
-        var xx = q.X * q.X;
-        var yy = q.Y * q.Y;
-        var zz = q.Z * q.Z;
-        var xy = q.X * q.Y;
-        var xz = q.X * q.Z;
-        var yz = q.Y * q.Z;
-        var wx = q.W * q.X;
-        var wy = q.W * q.Y;
-        var wz = q.W * q.Z;
+        // Column-major vectors
+        var right   = Vector3.Transform(Vector3.Right, q);
+        var up      = Vector3.Transform(Vector3.Up, q);
+        var forward = Vector3.Transform(Vector3.Forward, q);
 
         return new Matrix4(
-            1f - 2f * (yy + zz),  2f * (xy + wz),      2f * (xz - wy),      0f,
-            2f * (xy - wz),        1f - 2f * (xx + zz), 2f * (yz + wx),      0f,
-            2f * (xz + wy),        2f * (yz - wx),      1f - 2f * (xx + yy), 0f,
-            0f,                     0f,                  0f,                  1f
+            right.X, up.X, forward.X, 0f,
+            right.Y, up.Y, forward.Y, 0f,
+            right.Z, up.Z, forward.Z, 0f,
+            0f,      0f,  0f,        1f
         );
     }
 

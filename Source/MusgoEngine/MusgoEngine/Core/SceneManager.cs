@@ -1,17 +1,9 @@
-using MusgoEngine.Graphics;
-
 namespace MusgoEngine.Core;
 
 public class SceneManager
 {
     private readonly Dictionary<string, Scene> _scenes = new();
     private Scene? _currentScene;
-    private ISceneGlobals _sceneGlobals;
-
-    public SceneManager(ISceneGlobals sceneGlobals)
-    {
-        _sceneGlobals = sceneGlobals;
-    }
 
     public void AddScene(Scene scene)
     {
@@ -42,10 +34,7 @@ public class SceneManager
 
     public void InitializeActiveScene()
     {
-        if (_currentScene == null) return;
-
-        _sceneGlobals.Initialize();
-        _currentScene.Initialize();
+        _currentScene?.Initialize();
     }
 
     public void BeginFrameActiveScene()
@@ -65,10 +54,7 @@ public class SceneManager
 
     public void RenderActiveScene()
     {
-        if (_currentScene == null) return;
-
-        _sceneGlobals.Update(_currentScene);
-        _currentScene.Render();
+        _currentScene?.Render();
     }
 
     public void EndFrameActiveScene()
@@ -78,9 +64,6 @@ public class SceneManager
 
     public void ShutdownActiveScene()
     {
-        if (_currentScene == null) return;
-
-        _sceneGlobals.Shutdown();
-        _currentScene.Shutdown();
+        _currentScene?.Shutdown();
     }
 }

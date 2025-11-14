@@ -1,4 +1,5 @@
 using MusgoEngine.Core;
+using MusgoEngine.Graphics;
 
 namespace MusgoEngine;
 
@@ -9,6 +10,8 @@ public class Scene(string name)
     public string Name { get; private set; } = name;
     public SceneEnvironment SceneEnvironment { get; set; } = new();
     public readonly EntityManager EntityManager = new();
+
+    internal ISceneGlobals SceneGlobals = SceneGlobalsFactory.Create();
 
     public void AddGameSystem(GameSystem gameSystem)
     {

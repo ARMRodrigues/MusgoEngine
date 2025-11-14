@@ -50,7 +50,7 @@ public class CameraSystem(EntityManager entityManager) : GameSystem
     private static Matrix4 GetViewMatrix(Transform transform)
     {
         var position = transform.Position;
-        var forward = transform.Forward;
+        var forward = -transform.Forward;
         var up = transform.Up;
 
         return Matrix4.CreateLookAt(position, position + forward, up);

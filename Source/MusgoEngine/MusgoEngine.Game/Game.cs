@@ -13,6 +13,15 @@ public class Game : IGame
     {
         var scene = new Scene("FirstScene");
 
+        var directionalLightEntity = scene.EntityManager.CreateEntity();
+        var directionalLightTransform = new Transform()
+        {
+            LocalEulerAngles = new Vector3(-60f, 150f, 0f)
+        };
+        var directionalLight = new DirectionalLight();
+        scene.EntityManager.AddComponent(directionalLightEntity, directionalLightTransform);
+        scene.EntityManager.AddComponent(directionalLightEntity, directionalLight);
+
         // Camera
         var cameraEntity = scene.EntityManager.CreateEntity();
         var camera = new Camera()
@@ -67,10 +76,11 @@ public class Game : IGame
 
         // Systems
         scene.AddGameSystem(new TransformSystem(scene.EntityManager));
+        scene.AddGameSystem(new SceneGlobalsSystem(scene));
         scene.AddGameSystem(new CameraSystem(scene.EntityManager));
         scene.AddGameSystem(new MeshRendererSystem(scene.EntityManager));
         scene.AddGameSystem(new RotateMeshSystem(scene.EntityManager));
-        scene.AddGameSystem(new RotateTheCameraSystem(scene.EntityManager));
+        //scene.AddGameSystem(new RotateTheCameraSystem(scene.EntityManager));
 
         sceneManager.SetActiveScene(scene);
     }

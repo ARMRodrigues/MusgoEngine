@@ -30,7 +30,7 @@ public class MusgoApplication
 
         _windowSystem = WindowSystemFactory.Create(_settings.ApiType);
         _graphicApi = GraphicsApiFactory.Create(_settings.ApiType);
-        _sceneManager = new SceneManager(SceneGlobalsFactory.Create(_settings.ApiType));
+        _sceneManager = new SceneManager();
         _gameTime = new GameTime();
 
         GraphicsDevice.Instance.Initialize(_settings.ApiType, _settings.Platform, _graphicApi, _windowSystem);

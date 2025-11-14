@@ -1,6 +1,6 @@
 using MusgoEngine.Math;
 
-namespace MusgoEngine.Core;
+namespace MusgoEngine;
 
 public class Transform : GameComponent
 {
@@ -32,7 +32,8 @@ public class Transform : GameComponent
         {
             _localRotation = value;
             var radians = value * (MathF.PI / 180f);
-            _rotation = Quaternion.FromYawPitchRoll(radians.Y, radians.X, radians.Z);
+            //_rotation = Quaternion.FromYawPitchRoll(radians.Y, radians.X, radians.Z);
+            _rotation = Quaternion.FromPitchYawRoll(radians.X, radians.Y, radians.Z);
             HasChanged = true;
         }
     }
@@ -63,9 +64,9 @@ public class Transform : GameComponent
         get
         {
             _localMatrix =
-                Matrix4.CreateScale(_localScale) *
+                Matrix4.CreateTranslation(_localPosition) *
                 Matrix4.CreateFromQuaternion(_rotation) *
-                Matrix4.CreateTranslation(_localPosition);
+                Matrix4.CreateScale(_localScale);
             return _localMatrix;
         }
     }
@@ -80,11 +81,10 @@ public class Transform : GameComponent
         }
     }
 
-    public Vector3 Right   => new Vector3(WorldMatrix.M11, WorldMatrix.M12, WorldMatrix.M13).Normalized();
-    public Vector3 Up      => new Vector3(WorldMatrix.M21, WorldMatrix.M22, WorldMatrix.M23).Normalized();
-    public Vector3 Forward => (-new Vector3(WorldMatrix.M31, WorldMatrix.M32, WorldMatrix.M33)).Normalized();
-
-
+    public Matrix4 RotationMatrix => Matrix4.CreateFromQuaternion(_rotation);
+    public Vector3 Right => new Vector3(RotationMatrix.M11, RotationMatrix.M21, RotationMatrix.M31).Normalized();
+    public Vector3 Up => new Vector3(RotationMatrix.M12, RotationMatrix.M22, RotationMatrix.M32).Normalized();
+    public Vector3 Forward => new Vector3(RotationMatrix.M13, RotationMatrix.M23, RotationMatrix.M33).Normalized();
 
     public Transform(Vector3 position = default)
     {
@@ -106,7 +106,7 @@ public class Transform : GameComponent
     public void RotateAround(Vector3 target, float angleDeg, Vector3 up)
     {
         var direction = Position - target;
-        var rotation = Quaternion.FromAxisAngle(up.Normalized(), MathUtils.ToRadians(angleDeg));
+        var rotation = Quaternion.FromAxisAngle(up.Normalized(), angleDeg.ToRadians());
         var rotatedDirection = Vector3.Transform(direction, rotation);
 
         LocalPosition = target + rotatedDirection;
