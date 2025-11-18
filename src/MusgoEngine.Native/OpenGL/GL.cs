@@ -36,6 +36,7 @@ public static unsafe partial class GL
 
         // LoadUniformVars
         _glUniform1f = (delegate* unmanaged[Cdecl]<int, float, void>)GetProcAddressPointer("glUniform1f");
+        _glUniform3f = (delegate* unmanaged[Cdecl]<int, float, float, float, void>)GetProcAddressPointer("glUniform3f");
         _glUniformMatrix4fv = (delegate* unmanaged[Cdecl]<int, int, bool, float*, void>)GetProcAddressPointer("glUniformMatrix4fv");
 
         // VertexArrayObjects
