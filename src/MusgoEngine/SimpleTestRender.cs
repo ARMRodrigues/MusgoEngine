@@ -13,8 +13,9 @@ public class SimpleTestRender
     private EGLContext _eglContext;
     private EGLSurface _eglSurface;
 
-    private uint _vao, _vbo, _ebo;
-    private uint _shaderProgram;
+    private List<CubeMesh> _cubeMeshes;
+
+    private DefaultShader _defaultShader;
 
     public void Start()
     {
@@ -102,7 +103,16 @@ public class SimpleTestRender
         Console.WriteLine("Renderer: " + GL.GetString(GLStringName.Renderer));
         Console.WriteLine("Version:  " + GL.GetString(GLStringName.Version));
 
-        SetMesh();
+        _defaultShader = new DefaultShader();
+
+        _cubeMeshes = new List<CubeMesh>();
+
+        var seed = 987654321;
+        var openSimple = new OpenSimplexNoise(seed);
+        var chunk = new Chunk();
+        chunk.Generate(openSimple, _defaultShader.Program);
+
+        _cubeMeshes = chunk.Cubes;
     }
 
     public void Loop()
@@ -122,19 +132,9 @@ public class SimpleTestRender
             GL.ClearColor(27/255f, 42/255f, 33/255f, 1.0f);
             GL.Clear(GLClearBufferMask.ColorBufferBit | GLClearBufferMask.DepthBufferBit);
 
-            GL.UseProgram(_shaderProgram);
+            GL.UseProgram(_defaultShader.Program);
 
-            var pos = new Vector3();
-            var rot = Quaternion.CreateFromYawPitchRoll(0, 0, 0);
-            var scale = Vector3.One;
-
-            /*var model = Matrix4x4.CreateScale(scale) *
-                              Matrix4x4.CreateFromQuaternion(rot) *
-                              Matrix4x4.CreateTranslation(pos);*/
-            angle += 1.0f * deltaTime;
-            var model = Matrix4x4.CreateRotationY(angle) * Matrix4x4.CreateRotationX(angle * 0.5f);
-
-            var camePos = new Vector3(0, 0, 10f);
+            var camePos = new Vector3(10, 8, 10f);
             var cameraForward = -Vector3.UnitZ;
 
             var view = Matrix4x4.CreateLookAt(
@@ -150,20 +150,26 @@ public class SimpleTestRender
                 100f
             );
 
-            // Matrix
-            GL.UniformMatrix4fv(GL.GetUniformLocation(_shaderProgram, "model"), false, model);
-            GL.UniformMatrix4fv(GL.GetUniformLocation(_shaderProgram, "view"), false, view);
-            GL.UniformMatrix4fv(GL.GetUniformLocation(_shaderProgram, "proj"), false, proj);
+            angle += 1.0f * deltaTime;
 
-            // Send Light data
-            GL.Uniform3f(GL.GetUniformLocation(_shaderProgram, "lightDir"), -0.25f, -0.866f, 0.433f);
-            GL.Uniform3f(GL.GetUniformLocation(_shaderProgram, "lightColor"), 1f, 1f, 1f);
-            GL.Uniform3f(GL.GetUniformLocation(_shaderProgram, "objectColor"), 0.8f, 0.2f, 0.2f);
+            foreach (var cube in _cubeMeshes)
+            {
+                //var rot = Matrix4x4.CreateRotationY(angle) * Matrix4x4.CreateRotationX(angle * cube.RotateSpeed);
+                var rot = Matrix4x4.CreateFromQuaternion(new Quaternion());
+                var model = Matrix4x4.CreateScale(cube.Scale) *
+                  rot *
+                  Matrix4x4.CreateTranslation(cube.Position);
 
-            // Draw cube
-            GL.BindVertexArray(_vao);
-            GL.DrawElements(GLPrimitiveType.Triangles, 36, GLDrawElementsType.UnsignedInt, IntPtr.Zero);
-            GL.BindVertexArray(0);
+                GL.UniformMatrix4fv(GL.GetUniformLocation(_defaultShader.Program, "model"), false, model);
+                GL.UniformMatrix4fv(GL.GetUniformLocation(_defaultShader.Program, "view"), false, view);
+                GL.UniformMatrix4fv(GL.GetUniformLocation(_defaultShader.Program, "proj"), false, proj);
+
+                GL.Uniform3f(GL.GetUniformLocation(_defaultShader.Program, "lightDir"), -0.721f, -0.588f, -0.367f);
+                GL.Uniform3f(GL.GetUniformLocation(_defaultShader.Program, "lightColor"), 1f, 1f, 1f);
+                GL.Uniform3f(GL.GetUniformLocation(_defaultShader.Program, "objectColor"), 1f, 1f, 1f);
+
+                cube.Draw();
+            }
 
             EGL.SwapBuffers(_eglDisplay, _eglSurface);
         }
@@ -171,13 +177,7 @@ public class SimpleTestRender
 
     public void Shutdown()
     {
-        // Delete buffers
-        if (_ebo != 0) GL.DeleteBuffer(_ebo);
-        if (_vbo != 0) GL.DeleteBuffer(_vbo);
-        if (_vao != 0) GL.DeleteVertexArray(_vao);
-
-        // Delete shader
-        if (_shaderProgram != 0) GL.DeleteProgram(_shaderProgram);
+        _defaultShader.Shutdown();
 
         if (_eglSurface != IntPtr.Zero)
             EGL.DestroySurface(_eglDisplay, _eglSurface);
@@ -186,195 +186,14 @@ public class SimpleTestRender
         if (_eglDisplay != IntPtr.Zero)
             EGL.Terminate(_eglDisplay);
 
+        foreach (var cubes in _cubeMeshes)
+        {
+            cubes.Shutdown();
+        }
+
         if (_window != IntPtr.Zero)
             GLFW.DestroyWindow(_window);
 
         Console.WriteLine("GLFW shutting down");
-    }
-
-    private void SetMesh()
-    {
-        float[] vertices = {
-            // positions        // normals
-
-            // Front face
-            -0.5f, -0.5f,  0.5f,  0, 0, 1,
-            0.5f, -0.5f,  0.5f,  0, 0, 1,
-            0.5f,  0.5f,  0.5f,  0, 0, 1,
-            -0.5f,  0.5f,  0.5f,  0, 0, 1,
-
-            // Back face
-            -0.5f, -0.5f, -0.5f,  0, 0,-1,
-            0.5f, -0.5f, -0.5f,  0, 0,-1,
-            0.5f,  0.5f, -0.5f,  0, 0,-1,
-            -0.5f,  0.5f, -0.5f,  0, 0,-1,
-
-            // Left face
-            -0.5f, -0.5f, -0.5f, -1, 0, 0,
-            -0.5f,  0.5f, -0.5f, -1, 0, 0,
-            -0.5f,  0.5f,  0.5f, -1, 0, 0,
-            -0.5f, -0.5f,  0.5f, -1, 0, 0,
-
-            // Right face
-            0.5f, -0.5f, -0.5f,  1, 0, 0,
-            0.5f,  0.5f, -0.5f,  1, 0, 0,
-            0.5f,  0.5f,  0.5f,  1, 0, 0,
-            0.5f, -0.5f,  0.5f,  1, 0, 0,
-
-            // Top face
-            -0.5f,  0.5f, -0.5f,  0, 1, 0,
-            0.5f,  0.5f, -0.5f,  0, 1, 0,
-            0.5f,  0.5f,  0.5f,  0, 1, 0,
-            -0.5f,  0.5f,  0.5f,  0, 1, 0,
-
-            // Bottom face
-            -0.5f, -0.5f, -0.5f,  0,-1, 0,
-            0.5f, -0.5f, -0.5f,  0,-1, 0,
-            0.5f, -0.5f,  0.5f,  0,-1, 0,
-            -0.5f, -0.5f,  0.5f,  0,-1, 0,
-        };
-
-        uint[] indices = {
-            // Front
-            0, 1, 2, 2, 3, 0,
-            // Back
-            4, 5, 6, 6, 7, 4,
-            // Left
-            8, 9,10,10,11, 8,
-            // Right
-            12,13,14,14,15,12,
-            // Top
-            16,17,18,18,19,16,
-            // Bottom
-            20,21,22,22,23,20
-        };
-
-
-        _vao = GL.GenVertexArray();
-        _vbo = GL.GenBuffer();
-        _ebo = GL.GenBuffer();
-
-        GL.BindVertexArray(_vao);
-
-        GL.BindBuffer(GLBufferTarget.ArrayBuffer, _vbo);
-        GL.BufferData(GLBufferTarget.ArrayBuffer, vertices, GLBufferUsageHint.StaticDraw);
-
-        GL.BindBuffer(GLBufferTarget.ElementArrayBuffer, _ebo);
-        GL.BufferData(GLBufferTarget.ElementArrayBuffer, indices, GLBufferUsageHint.StaticDraw);
-
-        GL.EnableVertexAttribArray(0);
-        GL.VertexAttribPointer(0, 3, GLVertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
-
-        GL.EnableVertexAttribArray(1);
-        GL.VertexAttribPointer(1, 3, GLVertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
-
-        GL.BindVertexArray(0);
-
-        // --- Shader básico ---
-        string vertexSrc = @"#version 300 es
-        precision highp float;
-
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec3 aNormal;
-
-        uniform mat4 model;
-        uniform mat4 view;
-        uniform mat4 proj;
-
-        out vec3 FragPos;
-        out vec3 Normal;
-
-        void main()
-        {
-            FragPos = vec3(model * vec4(aPos,1.0));
-            Normal = mat3(transpose(inverse(model))) * aNormal;
-            gl_Position = proj * view * vec4(FragPos,1.0);
-        }
-        ";
-
-        string fragSrc = @"#version 300 es
-        precision highp float;
-
-        in vec3 FragPos;
-        in vec3 Normal;
-
-        uniform vec3 lightDir;
-        uniform vec3 lightColor;
-        uniform vec3 objectColor;
-
-        out vec4 FragColor;
-
-        void main()
-        {
-            float NdotL = max(dot(normalize(Normal), -lightDir), 0.0);
-            vec3 diffuse = NdotL * lightColor;
-            vec3 result = (diffuse + vec3(0.1)) * objectColor; // ambient 0.1
-            FragColor = vec4(result,1.0);
-        }
-        ";
-
-        _shaderProgram = CompileShader(vertexSrc, fragSrc);
-    }
-
-    private static uint CompileShader(string vertexSrc, string fragSrc)
-    {
-        uint vertex = GL.CreateShader(GLShaderType.VertexShader);
-        GL.ShaderSource(vertex, vertexSrc);
-        GL.CompileShader(vertex);
-
-        GL.GetShaderiv(vertex, GLShaderParameter.CompileStatus, out var vStatus);
-
-        if (vStatus == 0)
-        {
-            var info = GL.GetShaderInfoLog(vertex);
-#if DEBUG
-            throw new Exception($"Vertex shader compilation failed:\n{info}");
-#else
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[Shader Error] Vertex shader compilation failed:\n{info}");
-        Console.ResetColor();
-        Environment.Exit(1);
-#endif
-        }
-
-        uint frag = GL.CreateShader(GLShaderType.FragmentShader);
-        GL.ShaderSource(frag, fragSrc);
-        GL.CompileShader(frag);
-        GL.GetShaderiv(frag, GLShaderParameter.CompileStatus, out var fStatus);
-
-        if (fStatus == 0)
-        {
-            var info = GL.GetShaderInfoLog(frag);
-#if DEBUG
-            throw new Exception($"Fragment shader compilation failed:\n{info}");
-#else
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[Shader Error] Fragment shader compilation failed:\n{info}");
-        Console.ResetColor();
-        Environment.Exit(1);
-#endif
-        }
-
-        uint program = GL.CreateProgram();
-        GL.AttachShader(program, vertex);
-        GL.AttachShader(program, frag);
-        GL.LinkProgram(program);
-        GL.GetProgramiv(program, GLGetProgramParameterName.LinkStatus, out var pStatus);
-
-        if (pStatus == 0)
-        {
-            var info = GL.GetProgramInfoLog(program);
-#if DEBUG
-            throw new Exception($"Shader program linking failed:\n{info}");
-#else
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"[Shader Error] Program linking failed:\n{info}");
-        Console.ResetColor();
-        Environment.Exit(1);
-#endif
-        }
-        GL.DeleteShader(vertex);
-        GL.DeleteShader(frag);
-        return program;
     }
 }
